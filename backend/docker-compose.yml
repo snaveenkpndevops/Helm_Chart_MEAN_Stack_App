@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  backend:
+    image: restaurant-backend  
+    container_name: backend # Custom container name
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGO_URL=mongodb://root:password@mongodb-container:27017/restaurant_db?authSource=admin
+      - PORT=4000
+    depends_on:
+      - mongodb
+    networks:
+      - mean-stack-network
+
+# The below code for running mongodb container (image will be taken from online)
+  mongodb:
+    image: mongo
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - mean-stack-network
+
+# If we need to create a new docker network mean-stack-network then use the below code
+# networks:
+#   mean-stack-network:
+#     name: mean-stack-network # Explicitly set the network name
+#     driver: bridge
+
+networks:
+  mean-stack-network:
+    external: true # Use external if the network already exists; remove this line to create the network within the Compose file.

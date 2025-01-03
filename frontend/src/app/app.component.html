@@ -1,0 +1,60 @@
+<!-- app.component.html -->
+
+<div class="container">
+  <app-navbar></app-navbar>
+  <div class="filters">
+      <div class="location-container">
+          <label for="location">Location:</label>
+          <select id="location" [formControl]=
+          "location" (change)="filterRestaurants()">
+              <option value="">Select Location</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Pune">Pune</option>
+              <option value="Chennai">Chennai</option>
+          </select>
+      </div>
+      <div class="cuisines-container">
+          <label>Cuisines:</label>
+          <div *ngFor="let option of options"
+           class="cuisine-checkbox">
+              <input type="checkbox" [value]="option.value" 
+              (change)="toggleCuisine(option.value)" />
+              <label>{{ option.label }}</label>
+          </div>
+      </div>
+      <div class="rating-container">
+          <label for="rating">Rating:</label>
+          <select id="rating" [formControl]="rating"
+           (change)="filterRestaurants()">
+              <option value="">Select Rating</option>
+              <option value="3">3 above</option>
+              <option value="4">4 above</option>
+          </select>
+      </div>
+  </div>
+  <div class="restaurants">
+      <h3>Restaurants</h3>
+      <div class="restaurant-cards">
+          <div *ngFor="let restaurant of filteredRestaurants" 
+          class="restaurant-card">
+              <img [src]="restaurant.image" 
+              alt="{{ restaurant.name }}" />
+              <div class="card-body">
+                  <h5 class="card-title">{{ restaurant.name }}</h5>
+                  <p class="card-text">
+                      Types of food we offer:
+                      {{ restaurant.cuisines.join(", ") }}
+                  </p>
+              </div>
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Address: {{ restaurant.address }}</li>
+                  <li class="list-group-item">City: {{ restaurant.location }}</li>
+                  <li class="list-group-item">Rating: {{ restaurant.rating }}</li>
+              </ul>
+          </div>
+      </div>
+  </div>
+</div>

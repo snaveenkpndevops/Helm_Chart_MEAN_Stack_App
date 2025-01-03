@@ -1,0 +1,17 @@
+<!-- restaurant-card/restaurant-card.component.html -->
+
+<div class="card">
+    <img [src]="restaurant.image" 
+    class="card-img-top" [alt]="restaurant.name">
+    <div class="card-body">
+        <h5 class="card-title">{{ restaurant.name }}</h5>
+        <p class="card-text">
+            Types of food we offer: {{ restaurant.cuisines.join(', ') }}
+        </p>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Address: {{ restaurant.address }}</li>
+        <li class="list-group-item">City: {{ restaurant.location }}</li>
+        <li class="list-group-item">Rating: {{ restaurant.rating }}</li>
+    </ul>
+</div>

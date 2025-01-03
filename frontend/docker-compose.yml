@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  backend:
+    image: restaurant-frontend:new
+    container_name: frontend # Custom container name
+    ports:
+      - "4200:80"
+    networks:
+      - mean-stack-network
+
+# If we need to create a new docker network mean-stack-network then use the below code
+# networks:
+#   mean-stack-network:
+#     name: mean-stack-network # Explicitly set the network name
+#     driver: bridge
+
+networks:
+  mean-stack-network:
+    external: true # Use external if the network already exists; remove this line to create the network within the Compose file.
