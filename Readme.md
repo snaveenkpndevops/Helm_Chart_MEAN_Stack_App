@@ -408,3 +408,43 @@ helm install backend  /path/of/helmchart  →  If you are outside the helm chart
 ![Minikube Backend Service port-forward image](./images/Backend%20Browser%20Result%20Minikube1.png)
 
 
+## Note:
+
+### Helm Upgrade & Rollback:
+
+Now suppose you want to modify the chart (updated the image, replicas) and install the updated version, we can use the below command:
+
+![helm upgrade backend backend-chart image](./images/backend-chart%20before%20upgrade.png)
+
+
+![helm upgrade backend backend-chart image](./images/backend-chart%20before%20upgrade1.png)
+
+
+![helm upgrade backend backend-chart image](./images/backend-chart%20after%20upgrade.png)
+
+
+
+
+helm upgrade backend backend-chart 
+
+
+
+
+![helm upgrade backend backend-chart image](./images/backend-chart%20after%20upgrade1.png)
+
+
+![helm upgrade backend backend-chart image](./images/backend-chart%20after%20upgrade2.png)
+
+
+
+helm rollback backend 3
+
+
+kubectl get all -n restaurant
+
+
+![helm upgrade backend backend-chart image](./images/backend-chart%20after%20upgrade3.png)
+
+
+
+
