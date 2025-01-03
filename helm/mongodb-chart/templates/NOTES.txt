@@ -1,0 +1,15 @@
+############################################
+# MongoDB Deployment Notes
+############################################
+
+Thank you for deploying MongoDB with the mongodb-chart!
+
+Your MongoDB instance has been successfully deployed.
+
+To access the MongoDB service, follow these steps:
+
+1. **Connect to MongoDB Pod**
+   Run the following command to get the pod name:
+   
+   ```bash
+   kubectl get pods -n restaurant -l app=mongodb

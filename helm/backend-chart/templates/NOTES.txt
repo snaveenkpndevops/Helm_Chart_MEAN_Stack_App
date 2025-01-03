@@ -1,0 +1,28 @@
+===============================================================
+Welcome to the Restaurant Backend Helm Chart
+===============================================================
+
+1. **Installation Complete:**
+   The Restaurant Backend application has been successfully deployed. You can now access the service via the Kubernetes cluster.
+
+2. **Accessing the Application:**
+   - If the service type is `ClusterIP`, the application is only accessible from within the cluster.
+   - If you need to access the application externally, consider changing the service type to `LoadBalancer` or `NodePort` in your values.yaml file.
+
+3. **Backend URL:**
+   The backend service is accessible through the `backend-service` service in the `restaurant` namespace. Use the following to connect:
+   - Service URL: backend-service:4000
+
+4. **MongoDB Connection:**
+   The backend is configured to connect to MongoDB at the URL `mongodb://root:password@mongodb-service:27017/myrestaurant_db?authSource=admin`. Ensure that the MongoDB service is running and properly configured.
+
+5. **Scaling the Backend:**
+   You can scale the backend deployment by adjusting the `replicaCount` value in the `values.yaml` file. This will allow you to increase or decrease the number of backend instances.
+
+6. **Next Steps:**
+   - Configure your environment variables or secrets in `values.yaml` for more advanced setups.
+   - Optionally, add ingress or monitoring tools to manage your backend's exposure and health checks.
+
+===============================================================
+Thank you for using the Restaurant Backend Helm Chart!
+===============================================================

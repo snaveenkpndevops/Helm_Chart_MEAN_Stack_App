@@ -1,0 +1,18 @@
+# Default values for backend-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: snaveenkpn/restaurant-backend
+  tag: "1"
+
+spec:
+  ports: 4000
+
+service:
+  type: ClusterIP
+  port: 4000
+  targetPort: 4000
+
