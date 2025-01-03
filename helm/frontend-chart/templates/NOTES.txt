@@ -1,0 +1,40 @@
+###########################################
+#         Frontend Chart Notes            #
+###########################################
+
+Thank you for deploying the Frontend component of the MEAN Stack Restaurant App!
+
+The following details will help you access and manage your deployment:
+
+------------------------------------------------------------
+Deployment Details:
+------------------------------------------------------------
+- Deployment Name: frontend
+- Namespace: restaurant
+- Replica Count: {{ .Values.replicaCount }}
+- Image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+- Container Port: {{ .Values.spec.ports }}
+
+------------------------------------------------------------
+Service Details:
+------------------------------------------------------------
+- Service Name: frontend-service
+- Type: {{ .Values.service.type }}
+- Port: {{ .Values.service.port }}
+- Target Port: {{ .Values.service.targetPort }}
+
+------------------------------------------------------------
+Accessing the Frontend:
+------------------------------------------------------------
+- If the service type is **ClusterIP**:
+  The frontend service is accessible only within the cluster.
+
+- If the service type is **NodePort**:
+  The frontend service can be accessed on any cluster node's IP at a port in the range 30000-32767.
+
+- If the service type is **LoadBalancer**:
+  Check the external IP assigned by your cloud provider. 
+  You can monitor the service status using the following command:
+  
+  ```bash
+  kubectl get svc frontend-service -n restaurant

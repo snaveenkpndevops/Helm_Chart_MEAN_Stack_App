@@ -22,7 +22,8 @@ devopscube blog: https://devopscube.com/create-helm-chart/
 2. Open docker desktop in our local machine.
 3. helm installation in our local machine.
 4. Kubectl installation in our local machine
-4. create a minikube cluster
+5. make sure to login to docker
+6. create a minikube cluster
 
 ```
 // Open VSCODE Run the below command to start minikube:
@@ -408,6 +409,210 @@ helm install backend  /path/of/helmchart  →  If you are outside the helm chart
 ![Minikube Backend Service port-forward image](./images/Backend%20Browser%20Result%20Minikube1.png)
 
 
+
+
+## Now we are going to edit Frontend helm chart
+
+
+### Frontend-chart Folder Structure:
+
+![Frontend-chart Folder Structure image](./images/Frontend%20Chart%20Folder%20Structure.png)
+
+
+1. Remove all files and folder from templates folder which is inside frontend-chart folder.
+2. Edit the `chart.yaml` and include all the details as below.
+
+```
+// helm/frontend-chart/Chart.yaml
+
+apiVersion: v2                      # v2 indicates helm version 3, v1 indicated previous helm version.
+name: restaurant-frontend-chart      # Name of this chart
+description: A Helm chart for MEAN stack Restaurant frontend Application
+type: application                   # Application chart is for deploying the app in Kubernetes. Library Chart is for reusable in other helm chart.
+version: 0.1.0                      # This denotes the Chart version
+appVersion: "1.0.0"                 # This denotes the version of our frontend application
+maintainers:
+  - name: Naveen                    # Information about the owner of the chart
+    email: snaveenkpn@gmail.com     # Optional: you can include an email address for the maintainer
+
+```
+
+3. Add all frontend related kubernetes yaml files inside templates folder.
+4. Now edit `values.yaml` file.
+
+
+```
+// helm/frontend-chart/values.yaml
+
+# Default values for frontend-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: snaveenkpn/restaurant-frontend
+  tag: "1"
+
+spec:
+  ports: 80
+
+service:
+  type: ClusterIP
+  port: 4200
+  targetPort: 80
+
+
+
+```
+
+
+5. Now Update the Values in `frontend.yaml`
+
+
+```
+// helm/frontend-chart/templates/frontend.yaml
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: restaurant
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.spec.ports }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: restaurant
+spec:
+  selector:
+    app: frontend
+  ports:
+  - protocol: TCP
+    port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.targetPort }}
+  type: {{ .Values.service.type }}
+
+
+```
+
+
+
+6. You can add `NOTES.txt` (Optional) inside the templates folder. The `NOTES.txt` file is often used in Helm charts to provide additional information about the chart or deployment process. It is not mandatory, but it's a best practice to include helpful content for users who may deploy your Helm chart.
+
+
+```
+// helm/frontend-chart/templates/NOTES.txt
+
+
+###########################################
+#         Frontend Chart Notes            #
+###########################################
+
+Thank you for deploying the Frontend component of the MEAN Stack Restaurant App!
+
+The following details will help you access and manage your deployment:
+
+------------------------------------------------------------
+Deployment Details:
+------------------------------------------------------------
+- Deployment Name: frontend
+- Namespace: restaurant
+- Replica Count: {{ .Values.replicaCount }}
+- Image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+- Container Port: {{ .Values.spec.ports }}
+
+------------------------------------------------------------
+Service Details:
+------------------------------------------------------------
+- Service Name: frontend-service
+- Type: {{ .Values.service.type }}
+- Port: {{ .Values.service.port }}
+- Target Port: {{ .Values.service.targetPort }}
+
+------------------------------------------------------------
+Accessing the Frontend:
+------------------------------------------------------------
+- If the service type is **ClusterIP**:
+  The frontend service is accessible only within the cluster.
+
+- If the service type is **NodePort**:
+  The frontend service can be accessed on any cluster node's IP at a port in the range 30000-32767.
+
+- If the service type is **LoadBalancer**:
+  Check the external IP assigned by your cloud provider. 
+  You can monitor the service status using the following command:
+  
+  ```bash
+  kubectl get svc frontend-service -n restaurant
+
+```
+
+### Checking the frontend helm chart:
+
+1. cd helm/frontend-chart
+
+2. helm lint .              -->   This command will make sure that our chart is valid and, all the indentations are fine.
+
+3. helm template .          -->   To validate if the values are getting substituted in the templates, you can render the templated YAML files with the values using the following command. It will generate and display all the manifest files with the substituted values.
+
+
+4. cd ..                    -->  Now you are in helm directory.
+
+5. helm install --dry-run frontend frontend-chart   -->  We can also use --dry-run command to check. This will pretend to install the chart to the cluster and if there is some issue it will show the error.
+
+[The above command will not deploy any pods in cluster, it will just generate output that contains the information about the yaml files that is going to be deployed (all the yaml files that is going to be deployed in cluster)]
+
+
+6. Minikube is already running in our machine. So we just need to install the chart, it will deploy our frontend application (microservice) in minikube cluster.
+
+7. kubectl create namespace restaurant
+
+8. helm install frontend frontend-chart  →  If you are outside the helm chart. Run this command to install all the yaml in cluster.
+
+[or]
+
+helm install frontend  /path/of/helmchart  →  If you are outside the helm chart. Run this command to install all the yaml in cluster.
+
+
+![frontend-chart installation image](./images/Frontend%20Chart%20Installation.png)
+
+
+9. kubectl get all -n restaurant
+
+![frontend-chart installation image](./images/Frontend%20Chart%20Installation1.png)
+
+
+10. minikube service frontend-service -n restaurant --url   -->  we can port-forward the frontend service. Now paste the url in browser.
+
+
+![Minikube frontend Service port-forward image](./images/minikube%20frontend%20service%20port-forward.png)
+
+
+![Minikube frontend Service port-forward image](./images/Frontend%20app%20Checking.png)
+
+
+
+
+
+
 ## Note:
 
 ### Helm Upgrade & Rollback:
@@ -444,7 +649,3 @@ kubectl get all -n restaurant
 
 
 ![helm upgrade backend backend-chart image](./images/backend-chart%20after%20upgrade3.png)
-
-
-
-
