@@ -213,14 +213,22 @@ To access the MongoDB service, follow these steps:
 
 helm install mongodb  /path/of/helmchart  →  If you are outside the helm chart. Run this command to install all the yaml in cluster.
 
+
+![mongodb-chart installation image](./images/mongodb%20chart%20installation%20output.png)
+
 9. kubectl get all -n restaurant
 
-### Now we are going to edit backend helm chart
 
-Backend Folder Structure PNG
+![mongodb-chart installation image](./images/mongodb%20chart%20installation%20output1.png)
+
+
+## Now we are going to edit backend helm chart
+
+
 ### Backend-chart Folder Structure:
 
 ![Backend-chart Folder Structure image](./images/Backend%20Chart%20Folder%20Structure.png)
+
 
 1. Remove all files and folder from templates folder which is inside backend-chart folder.
 2. Edit the `chart.yaml` and include all the details as below.
@@ -382,12 +390,23 @@ Thank you for using the Restaurant Backend Helm Chart!
 helm install backend  /path/of/helmchart  →  If you are outside the helm chart. Run this command to install all the yaml in cluster.
 
 
+![backend-chart installation image](./images/backend%20chart%20installation%20output.png)
+
+
 9. kubectl get all -n restaurant
+
+![backend-chart installation image](./images/backend%20chart%20installation%20output%20kubectl%20result.png)
+
 
 10. minikube service backend-service -n restaurant --url   -->  we can port-forward the backend service. Now paste the url in browser along with `/api/restaurants` (or) `/health`.
 
 
+![Minikube Backend Service port-forward image](./images/minikube%20backend%20service%20port-forward.png)
 
 
+![Minikube Backend Service port-forward image](./images/Backend%20Browser%20Result%20Minikube.png)
 
-Now remove all files and folder from templates folder which is inside frontend-chart folder.
+
+![Minikube Backend Service port-forward image](./images/Backend%20Browser%20Result%20Minikube1.png)
+
+

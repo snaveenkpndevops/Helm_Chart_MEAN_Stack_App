@@ -3,7 +3,7 @@ name: restaurant-mongodb-chart      # Name of this chart
 description: A Helm chart for MEAN stack Restaurant Mongodb Application
 type: application                   # Application chart is for deploying the app in Kubernetes. Library Chart is for reusable in other helm chart.
 version: 0.1.0                      # This denotes the Chart version
-appVersion: "1.0.0"                 # This denotes the version of our backend application
+appVersion: "1.0.0"                 # This denotes the version of our mongodb application
 maintainers:
   - name: Naveen                    # Information about the owner of the chart
     email: snaveenkpn@gmail.com     # Optional: you can include an email address for the maintainer
