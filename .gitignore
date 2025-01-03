@@ -44,3 +44,12 @@ frontend/Thumbs.db
 # Backend
 backend/node_modules
 backend/.env
+
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
