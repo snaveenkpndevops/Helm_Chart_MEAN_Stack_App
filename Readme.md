@@ -216,10 +216,8 @@ helm install mongodb  /path/of/helmchart  →  If you are outside the helm chart
 
 ![mongodb-chart installation image](./images/mongodb%20chart%20installation%20output.png)
 
-9. kubectl get all -n restaurant
+9. kubectl get all -n restaurant  -->  It will show all the resources in restaurant namespace.
 
-
-![mongodb-chart installation image](./images/mongodb%20chart%20installation%20output1.png)
 
 
 ## Now we are going to edit backend helm chart
