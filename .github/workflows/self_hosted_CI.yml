@@ -86,7 +86,7 @@ jobs:
 
         # Update the Helm repo index
         helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
-      shell: pwsh
+      shell: powershell
 
     # Step 9: Commit Changes
     - name: Commit and Push Changes
