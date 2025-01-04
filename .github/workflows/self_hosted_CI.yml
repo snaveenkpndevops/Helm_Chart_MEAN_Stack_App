@@ -48,7 +48,6 @@ jobs:
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
       run: |
-        docker tag $env:FRONTEND_IMAGE:$env:BUILD_ID $env:FRONTEND_IMAGE:$env:BUILD_ID
         docker push $env:FRONTEND_IMAGE:$env:BUILD_ID
       shell: powershell  
 
