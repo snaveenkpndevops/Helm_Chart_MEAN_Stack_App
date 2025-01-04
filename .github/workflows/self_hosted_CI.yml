@@ -79,7 +79,7 @@ jobs:
     - name: Update Helm Repo Index
       run: |
         # Replace appVersion placeholder with the actual BUILD_ID in the index.yaml
-        sed -i "s/\$BUILD_ID/${BUILD_ID}/" ./helm/output/index.yaml
+        sed -i "s/\$BUILD_ID/${{ env.BUILD_ID }}/g" ./helm/output/index.yaml
         helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
 
     # Step 9: Commit Changes
