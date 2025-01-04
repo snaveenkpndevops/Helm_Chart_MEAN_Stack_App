@@ -45,6 +45,7 @@ jobs:
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
       run: |
+        docker tag snaveenkpn/restaurant-frontend:$env:BUILD_ID snaveenkpn/restaurant-frontend:$env:BUILD_ID
         docker push snaveenkpn/restaurant-frontend:$env:BUILD_ID
 
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
