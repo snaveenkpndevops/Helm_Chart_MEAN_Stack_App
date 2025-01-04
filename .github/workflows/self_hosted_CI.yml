@@ -41,6 +41,7 @@ jobs:
     - name: Build Docker Image
       run: |
         docker build -t $env:FRONTEND_IMAGE:$env:BUILD_ID ./frontend
+      shell: powershell  
 
 
 
@@ -49,6 +50,7 @@ jobs:
       run: |
         docker tag $env:FRONTEND_IMAGE:$env:BUILD_ID $env:FRONTEND_IMAGE:$env:BUILD_ID
         docker push $env:FRONTEND_IMAGE:$env:BUILD_ID
+      shell: powershell  
 
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
     - name: Update Helm Chart Image Tag
