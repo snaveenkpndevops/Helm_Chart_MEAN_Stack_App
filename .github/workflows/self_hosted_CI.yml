@@ -78,14 +78,15 @@ jobs:
     # Step 8: Update Index.yaml
     - name: Update Helm Repo Index
       run: |
-        # Ensure $BUILD_ID is expanded correctly and update index.yaml
-        sed -i "s/\$BUILD_ID/${{ env.BUILD_ID }}/g" ./helm/output/index.yaml
+        # PowerShell script to replace $BUILD_ID in index.yaml
+        (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', $env:BUILD_ID | Set-Content ./helm/output/index.yaml
 
         # Debugging the file content to ensure the replacement happened
-        cat ./helm/output/index.yaml
+        Get-Content ./helm/output/index.yaml
 
         # Update the Helm repo index
         helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
+      shell: pwsh
 
     # Step 9: Commit Changes
     - name: Commit and Push Changes
