@@ -36,8 +36,8 @@ jobs:
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
       run: |
-        docker tag ${FRONTEND_IMAGE}:${BUILD_ID} ${FRONTEND_IMAGE}:${BUILD_ID}
-        docker push ${FRONTEND_IMAGE}:${BUILD_ID}
+        docker tag $env:FRONTEND_IMAGE:$env:BUILD_ID $env:FRONTEND_IMAGE:$env:BUILD_ID
+        docker push $env:FRONTEND_IMAGE:$env:BUILD_ID
 
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
     - name: Update Helm Chart Image Tag
