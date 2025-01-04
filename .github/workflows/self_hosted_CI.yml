@@ -82,7 +82,6 @@ jobs:
         sed -i "s/\$BUILD_ID/${BUILD_ID}/" ./helm/output/index.yaml
         helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
 
-
     # Step 9: Commit Changes
     - name: Commit and Push Changes
       run: |
