@@ -40,7 +40,8 @@ jobs:
     # Step 3: Build Docker image
     - name: Build Docker Image
       run: |
-        docker build -t $env:FRONTEND_IMAGE:$env:BUILD_ID ./frontend
+        docker build -t snaveenkpn/restaurant-frontend:$env:BUILD_ID ./frontend
+
 
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
