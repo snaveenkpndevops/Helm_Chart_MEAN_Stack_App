@@ -1,0 +1,88 @@
+name: Helm CI/CD Automation
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+on:
+  workflow_dispatch:    # This line makes the workflow run only when user's manual trigger (eliminates automatic trigger on push)
+
+jobs:
+  helm-cicd:
+    runs-on: self-hosted    # Self-hosted runner tag
+
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      BUILD_ID: ${{ github.run_id }}
+      FRONTEND_IMAGE: snaveenkpn/restaurant-frontend
+
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Docker Login
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Step 3: Build Docker Image
+      - name: Build Docker Image
+        run: |
+          cd frontend
+          docker build -t $FRONTEND_IMAGE:$BUILD_ID .
+
+      # Step 4: Tag and Push Docker Image
+      - name: Tag and Push Docker Image
+        run: |
+          docker tag $FRONTEND_IMAGE:$BUILD_ID $FRONTEND_IMAGE:$BUILD_ID
+          docker push $FRONTEND_IMAGE:$BUILD_ID
+
+      # Step 5: Update values.yaml and Chart.yaml
+      - name: Update Helm Chart Values
+        run: |
+          # Update appVersion in Chart.yaml
+          sed -i "s/^appVersion:.*$/appVersion: \"$BUILD_ID\"/" helm/frontend-chart/Chart.yaml
+          
+          # Update image tag in values.yaml
+          sed -i "s/^  tag:.*$/  tag: \"$BUILD_ID\"/" helm/frontend-chart/values.yaml
+
+      # Step 6: Update Chart Version
+      - name: Get User Input for Chart Version
+        id: version_input
+        run: |
+          echo "Enter version type (major/minor/none):"
+          read version_type
+          echo "::set-output name=version_type::$version_type"
+
+      - name: Update Chart Version Based on Input
+        if: steps.version_input.outputs.version_type != 'none'
+        run: |
+          version_type="${{ steps.version_input.outputs.version_type }}"
+          chart_version=$(grep '^version:' helm/frontend-chart/Chart.yaml | awk '{print $2}')
+          major=$(echo $chart_version | cut -d. -f1)
+          minor=$(echo $chart_version | cut -d. -f2)
+          patch=$(echo $chart_version | cut -d. -f3)
+
+          if [ "$version_type" == "major" ]; then
+            major=$((major + 1))
+            minor=0
+            patch=0
+          elif [ "$version_type" == "minor" ]; then
+            minor=$((minor + 1))
+            patch=0
+          fi
+
+          new_version="$major.$minor.$patch"
+          sed -i "s/^version:.*$/version: $new_version/" helm/frontend-chart/Chart.yaml
+
+      # Step 7: Package Helm Chart
+      - name: Package Helm Chart
+        run: |
+          helm package helm/frontend-chart --destination helm/packages
+
+      # Step 8: Update Chart Details in index.yaml
+      - name: Update Helm Chart Index
+        run: |
+          helm repo index helm/packages --merge helm/index.yaml

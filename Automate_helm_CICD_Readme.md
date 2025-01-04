@@ -40,7 +40,7 @@ For this hands-on session, we will utilize a self-hosted runner in GitHub Action
 
 ### Our Self-hosted Runner is running in our local windows machine:
 
-1. Open docker desktop in our local machine.
+1. docker desktop should be open in our local machine.
 2. helm installation in our local machine.
 3. make sure to login to docker
 4. create a minikube cluster and start the minikube cluster.
