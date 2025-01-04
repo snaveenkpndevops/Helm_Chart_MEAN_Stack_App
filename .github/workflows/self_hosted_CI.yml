@@ -12,7 +12,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   BUILD_ID: ${{ github.run_id }}
-  FRONTEND_IMAGE: docker.io/snaveenkpn/restaurant-frontend
+  FRONTEND_IMAGE: snaveenkpn/restaurant-frontend
 
 jobs:
   build-and-deploy:
