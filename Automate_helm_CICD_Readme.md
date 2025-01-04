@@ -60,8 +60,5 @@ kubectl config current-context  -->  This cmd will show the current cluster.
 
 6. Run the Github-Action Runner in your local machine.
 
-```
+Please Read the `Runners_README.md` for hosting the Self-hosted runner in your local machine: `https://github.com/snaveenkpndevops/Github_Action_learning/blob/main/Runners_README.md`
 
-Please Read the Runners_README.md for hosting the Self-hosted runner in your local machine: https://github.com/snaveenkpndevops/Github_Action_learning/blob/main/Runners_README.md
-
-```
