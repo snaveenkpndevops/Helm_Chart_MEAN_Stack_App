@@ -609,7 +609,9 @@ helm install frontend  /path/of/helmchart  →  If you are outside the helm char
 ![Minikube frontend Service port-forward image](./images/Frontend%20app%20Checking.png)
 
 
+### Why Frontend is not connected to backend ?
 
+In the above screenshot you can see that frontend is not showing restaurant image and other details. This is because we need to update the backend dns url in frontend code. We will look into this, when we deploy our helm in eks cluster.
 
 
 
@@ -649,3 +651,17 @@ kubectl get all -n restaurant
 
 
 ![helm upgrade backend backend-chart image](./images/backend-chart%20after%20upgrade3.png)
+
+
+helm list  →  Now you can check the release list using this command: You can also use ls instead of list.
+
+
+![helm list image](./images/helm%20list.png)
+
+
+
+## Automate helm CI/CD using Github Action:
+
+For the Helm CI/CD Automation project, please refer to the `Automate_helm_CICD_Readme.md` file.
+
+
