@@ -3,7 +3,20 @@ entries:
   restaurant-frontend-chart:
   - apiVersion: v2
     appVersion: $BUILD_ID
-    created: "2025-01-05T15:27:38.4992795+05:30"
+    created: "2025-01-05T15:35:23.6442968+05:30"
+    description: A Helm chart for MEAN stack Restaurant frontend Application
+    digest: fb4e8056c31bfd21ca73394372bf27f1c4adfa0eed9f2021d7e0209500896341
+    maintainers:
+    - email: snaveenkpn@gmail.com
+      name: Naveen
+    name: restaurant-frontend-chart
+    type: application
+    urls:
+    - https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App/restaurant-frontend-chart-0.11.0.tgz
+    version: 0.11.0
+  - apiVersion: v2
+    appVersion: $BUILD_ID
+    created: "2025-01-05T15:35:23.6442968+05:30"
     description: A Helm chart for MEAN stack Restaurant frontend Application
     digest: 92652c99d50f1f97fabb15e59347fbbb1cf564031d815a48beb31e9b266ec86d
     maintainers:
@@ -14,4 +27,4 @@ entries:
     urls:
     - https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App/restaurant-frontend-chart-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-05T15:27:38.4982317+05:30"
+generated: "2025-01-05T15:35:23.6432964+05:30"
