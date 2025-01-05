@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: snaveenkpn/restaurant-frontend
-  tag: '12620551696'
+  tag: '12621180462'
 
 spec:
   ports: 80
