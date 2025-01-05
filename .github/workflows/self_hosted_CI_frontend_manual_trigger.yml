@@ -1,4 +1,4 @@
-name: Helm CI/CD Automation
+name: Helm CI/CD Automation for frontend manual_trigger
 
 on:
   workflow_dispatch:   # This line makes the workflow run only when user's manual trigger (eliminates automatic trigger on push)    
