@@ -136,9 +136,10 @@ jobs:
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
         git add .
+        git status
         
-        # Check for changes using git diff and commit if changes exist
-        $diff = git diff --exit-code
+        # Check for changes and commit them
+        $diff = git status --porcelain
         if ($diff) {
           git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"
           git push
