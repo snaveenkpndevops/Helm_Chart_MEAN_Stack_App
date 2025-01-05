@@ -117,7 +117,7 @@ jobs:
         }
         
         # Upgrade or install the Helm chart for backend
-        helm upgrade --install backend ./helm/backend-chart --namespace restaurant --set image.tag=12620189728 --atomic
+        helm upgrade --install backend ./helm/backend-chart --namespace restaurant --set image.tag=${{ env.BUILD_ID }} --atomic
         
         # Wait for the backend deployment to become available
         kubectl wait --for=condition=available --timeout=600s deployment/backend -n restaurant
