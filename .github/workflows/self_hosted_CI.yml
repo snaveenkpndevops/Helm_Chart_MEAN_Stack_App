@@ -54,9 +54,10 @@ jobs:
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
     - name: Update Helm Chart Image Tag
       run: |
-        (Get-Content ./helm/frontend-chart/values.yaml) -replace 'tag: ".*"', "tag: \"$env:BUILD_ID\"" | Set-Content ./helm/frontend-chart/values.yaml
-        (Get-Content ./helm/frontend-chart/Chart.yaml) -replace 'appVersion: ".*"', "appVersion: \"$env:BUILD_ID\"" | Set-Content ./helm/frontend-chart/Chart.yaml
+        (Get-Content ./helm/frontend-chart/values.yaml) -replace 'tag: ".*"', "tag: `"$env:BUILD_ID`"" | Set-Content ./helm/frontend-chart/values.yaml
+        (Get-Content ./helm/frontend-chart/Chart.yaml) -replace 'appVersion: ".*"', "appVersion: `"$env:BUILD_ID`"" | Set-Content ./helm/frontend-chart/Chart.yaml
       shell: powershell
+      
 
     # Step 6: Update Chart Version
     - name: Update Chart Version
