@@ -38,7 +38,7 @@ jobs:
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
       run: |
-        docker push ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }}    # Staging Environment: You may deploy a specific tagged version, e.g., frontend:12345.
+        docker push ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }}   # Staging Environment: You may deploy a specific tagged version, e.g., frontend:12345.
         docker push ${{ env.FRONTEND_IMAGE }}:latest                 # Development or Testing Environment: Developers might prefer using frontend:latest for ease of testing the most recent image.
       shell: powershell  
 
@@ -79,10 +79,10 @@ jobs:
         $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
 
 
-
-    # Step 7: Validate Helm Chart
+    # Step 7: Lint Helm Chart
     - name: Lint Helm Chart
       run: |
+        helm dep update ./helm/frontend-chart
         helm lint ./helm/frontend-chart
       shell: powershell
 
@@ -95,22 +95,24 @@ jobs:
     # Step 9: Update Index.yaml
     - name: Update Helm Repo Index
       run: |
+        REPO_URL="https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App"
         if (!(Test-Path -Path ./helm/output/index.yaml)) {
           echo "index.yaml not found. Creating a new index.yaml file."
-          helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
+          helm repo index ./helm/output --url $REPO_URL
         }
         (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', '${{ env.BUILD_ID }}' | Set-Content ./helm/output/index.yaml
-        Get-Content ./helm/output/index.yaml
-        helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
+        helm repo index ./helm/output --url $REPO_URL
       shell: powershell
 
-    # # Step 10: Deploy to Staging and Validate
-    # - name: Deploy to Staging
-    #   run: |
-    #     helm upgrade --install frontend ./helm/frontend-chart --namespace staging --set image.tag=${{ env.BUILD_ID }}
-    #     kubectl get pods -n staging
-    #     kubectl rollout status deployment frontend -n staging
-    #   shell: powershell
+    # Step 10: Deploy to Staging
+    - name: Deploy to Staging
+      run: |
+        kubectl get namespace restaurant || kubectl create namespace restaurant
+        helm upgrade --install frontend ./helm/frontend-chart --namespace restaurant --set image.tag=${{ env.BUILD_ID }} --atomic
+        kubectl wait --for=condition=available --timeout=600s deployment/frontend -n restaurant
+        kubectl get pods -n restaurant
+        kubectl rollout status deployment frontend -n restaurant
+      shell: powershell
 
     # Step 11: Commit and Push Changes
     - name: Commit and Push Changes
@@ -118,8 +120,7 @@ jobs:
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
         git add .
-        git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"
-        git push
+        git diff --exit-code || (git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"; git push)
       shell: powershell
 
     # # Step 12: Send Notifications
