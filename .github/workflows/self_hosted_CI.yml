@@ -23,18 +23,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # # Step 2: Docker debug login  
-    # - name: Debug Docker Login Environment Variables
-    #   run: |
-    #     echo "DOCKER_USERNAME=$env:DOCKER_USERNAME"
-    #     echo "DOCKER_PASSWORD is set"
-    #   shell: powershell
-
-
     # Step 2: Docker login    #// We already login to dockerhub manually in our local machine. so skip this step
     - name: Docker Login
       run: |
-        docker login -u $env:DOCKER_USERNAME -p $env:DOCKER_PASSWORD
+        docker login -u ${{ env.DOCKER_USERNAME }} -p ${{ env.DOCKER_PASSWORD }}
       shell: powershell
 
     # Step 3: Build Docker image
@@ -42,8 +34,6 @@ jobs:
       run: |
         docker build -t ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }} ./frontend
       shell: powershell  
-
-
 
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
@@ -54,22 +44,19 @@ jobs:
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
     - name: Update Helm Chart Image Tag
       run: |
-        (Get-Content ./helm/frontend-chart/values.yaml) -replace 'tag: ".*"', "tag: `"$env:BUILD_ID`"" | Set-Content ./helm/frontend-chart/values.yaml
-        (Get-Content ./helm/frontend-chart/Chart.yaml) -replace 'appVersion: ".*"', "appVersion: `"$env:BUILD_ID`"" | Set-Content ./helm/frontend-chart/Chart.yaml
+        (Get-Content ./helm/frontend-chart/values.yaml) -replace 'tag:.*', "tag: '${{ env.BUILD_ID }}'" | Set-Content ./helm/frontend-chart/values.yaml
+        (Get-Content ./helm/frontend-chart/Chart.yaml) -replace 'appVersion:.*', "appVersion: '${{ env.BUILD_ID }}'" | Set-Content ./helm/frontend-chart/Chart.yaml
       shell: powershell
-      
 
     # Step 6: Update Chart Version
     - name: Update Chart Version
       if: ${{ github.event.inputs.update_chart_version == 'yes' }}
       run: |
-        $chartFile = "./helm/frontend-chart/Chart.yaml"
-        $currentVersion = (Select-String -Path $chartFile -Pattern '^version:' | ForEach-Object { $_.Line.Split(':')[1].Trim() })
-        $newVersion = ($currentVersion -replace '\d+$', { [int]$args[0] + 1 } -f ($currentVersion -split '\.')[-1])
-        (Get-Content $chartFile) -replace "^version:.*", "version: $newVersion" | Set-Content $chartFile
-      shell: powershell
-      env:
-        BUILD_ID: ${{ env.BUILD_ID }}
+        $chart_yaml = Get-Content "./helm/frontend-chart/Chart.yaml"
+        $current_version = ($chart_yaml | Select-String -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
+        $major, $minor, $patch = $current_version -split '\.'
+        $new_version = "$major.$($minor + 1).0"
+        $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
 
     # Step 7: Package Helm Chart
     - name: Package Helm Chart
@@ -81,7 +68,7 @@ jobs:
     - name: Update Helm Repo Index
       run: |
         # Replace $BUILD_ID in index.yaml
-        (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', "$env:BUILD_ID" | Set-Content ./helm/output/index.yaml
+        (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', '${{ env.BUILD_ID }}' | Set-Content ./helm/output/index.yaml
         # Debugging file content
         Get-Content ./helm/output/index.yaml
         # Update Helm repo index
@@ -94,5 +81,5 @@ jobs:
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
         git add .
-        git commit -m "Updated Helm Chart with Build ID ${BUILD_ID}"
+        git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"
         git push
