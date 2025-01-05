@@ -61,12 +61,18 @@ jobs:
     - name: Update Chart Version
       if: ${{ github.event.inputs.update_chart_version == 'yes' }}
       run: |
-        current_version=$(grep '^version:' ./helm/frontend-chart/Chart.yaml | awk '{print $2}')
-        major_version=$(echo $current_version | cut -d. -f1)
-        minor_version=$(echo $current_version | cut -d. -f2)
-        patch_version=$(echo $current_version | cut -d. -f3)
-        new_version="${major_version}.$((minor_version+1)).0"
-        sed -i "s/^version: .*/version: ${new_version}/" ./helm/frontend-chart/Chart.yaml
+        # Read the current version from Chart.yaml
+        $current_version = (Select-String -Path "./helm/frontend-chart/Chart.yaml" -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
+
+        # Extract major, minor, and patch versions
+        $major_version, $minor_version, $patch_version = $current_version -split '\.'
+
+        # Increment the minor version and reset the patch version
+        $new_version = "$major_version.$($minor_version + 1).0"
+
+        # Update the version in Chart.yaml
+        (Get-Content "./helm/frontend-chart/Chart.yaml") -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
+      shell: powershell
       env:
         BUILD_ID: ${{ env.BUILD_ID }}
 
