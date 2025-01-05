@@ -1,7 +1,7 @@
 name: Helm CI/CD Automation
 
 on:
-  workflow_dispatch:     # This line makes the workflow run only when user's manual trigger (eliminates automatic trigger on push)
+  workflow_dispatch:   # This line makes the workflow run only when user's manual trigger (eliminates automatic trigger on push)    
     inputs:
       update_chart_version:
         description: 'Do you want to update the chart version? (yes/no)'
@@ -32,13 +32,14 @@ jobs:
     # Step 3: Build Docker image
     - name: Build Docker Image
       run: |
-        docker build -t ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }} ./frontend
+        docker build -t ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }} -t ${{ env.FRONTEND_IMAGE }}:latest ./frontend
       shell: powershell  
 
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
       run: |
-        docker push ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }}
+        docker push ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }}    # Staging Environment: You may deploy a specific tagged version, e.g., frontend:12345.
+        docker push ${{ env.FRONTEND_IMAGE }}:latest                 # Development or Testing Environment: Developers might prefer using frontend:latest for ease of testing the most recent image.
       shell: powershell  
 
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
@@ -57,25 +58,41 @@ jobs:
         $major, $minor, $patch = $current_version -split '\.'
         $new_version = "$major.$($minor + 1).0"
         $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
+      shell: powershell
 
-    # Step 7: Package Helm Chart
+    # Step 7: Validate Helm Chart
+    - name: Lint Helm Chart
+      run: |
+        helm lint ./helm/frontend-chart
+      shell: powershell
+
+    # Step 8: Package Helm Chart
     - name: Package Helm Chart
       run: |
         helm package ./helm/frontend-chart -d ./helm/output
       shell: powershell
 
-    # Step 8: Update Index.yaml
+    # Step 9: Update Index.yaml
     - name: Update Helm Repo Index
       run: |
-        # Replace $BUILD_ID in index.yaml
+        if (!(Test-Path -Path ./helm/output/index.yaml)) {
+          echo "index.yaml not found. Creating a new index.yaml file."
+          helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
+        }
         (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', '${{ env.BUILD_ID }}' | Set-Content ./helm/output/index.yaml
-        # Debugging file content
         Get-Content ./helm/output/index.yaml
-        # Update Helm repo index
         helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
       shell: powershell
 
-    # Step 9: Commit Changes
+    # # Step 10: Deploy to Staging and Validate
+    # - name: Deploy to Staging
+    #   run: |
+    #     helm upgrade --install frontend ./helm/frontend-chart --namespace staging --set image.tag=${{ env.BUILD_ID }}
+    #     kubectl get pods -n staging
+    #     kubectl rollout status deployment frontend -n staging
+    #   shell: powershell
+
+    # Step 11: Commit and Push Changes
     - name: Commit and Push Changes
       run: |
         git config user.name "${{ github.actor }}"
@@ -83,3 +100,16 @@ jobs:
         git add .
         git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"
         git push
+      shell: powershell
+
+    # # Step 12: Send Notifications
+    # - name: Notify Slack
+    #   if: always()
+    #   uses: slackapi/slack-github-action@v1.23.0
+    #   with:
+    #     payload: |
+    #       {
+    #         "text": "Helm CI/CD workflow for ${{ github.repository }} has completed with status: ${{ job.status }}."
+    #       }
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
