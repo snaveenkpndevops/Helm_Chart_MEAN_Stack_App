@@ -54,24 +54,18 @@ jobs:
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
     - name: Update Helm Chart Image Tag
       run: |
-        sed -i 's/tag: ".*"/tag: "${BUILD_ID}"/' ./helm/frontend-chart/values.yaml
-        sed -i 's/appVersion: ".*"/appVersion: "${BUILD_ID}"/' ./helm/frontend-chart/Chart.yaml
+        (Get-Content ./helm/frontend-chart/values.yaml) -replace 'tag: ".*"', "tag: \"$env:BUILD_ID\"" | Set-Content ./helm/frontend-chart/values.yaml
+        (Get-Content ./helm/frontend-chart/Chart.yaml) -replace 'appVersion: ".*"', "appVersion: \"$env:BUILD_ID\"" | Set-Content ./helm/frontend-chart/Chart.yaml
+      shell: powershell
 
     # Step 6: Update Chart Version
     - name: Update Chart Version
       if: ${{ github.event.inputs.update_chart_version == 'yes' }}
       run: |
-        # Read the current version from Chart.yaml
-        $current_version = (Select-String -Path "./helm/frontend-chart/Chart.yaml" -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
-
-        # Extract major, minor, and patch versions
-        $major_version, $minor_version, $patch_version = $current_version -split '\.'
-
-        # Increment the minor version and reset the patch version
-        $new_version = "$major_version.$($minor_version + 1).0"
-
-        # Update the version in Chart.yaml
-        (Get-Content "./helm/frontend-chart/Chart.yaml") -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
+        $chartFile = "./helm/frontend-chart/Chart.yaml"
+        $currentVersion = (Select-String -Path $chartFile -Pattern '^version:' | ForEach-Object { $_.Line.Split(':')[1].Trim() })
+        $newVersion = ($currentVersion -replace '\d+$', { [int]$args[0] + 1 } -f ($currentVersion -split '\.')[-1])
+        (Get-Content $chartFile) -replace "^version:.*", "version: $newVersion" | Set-Content $chartFile
       shell: powershell
       env:
         BUILD_ID: ${{ env.BUILD_ID }}
@@ -80,17 +74,16 @@ jobs:
     - name: Package Helm Chart
       run: |
         helm package ./helm/frontend-chart -d ./helm/output
+      shell: powershell
 
     # Step 8: Update Index.yaml
     - name: Update Helm Repo Index
       run: |
-        # PowerShell script to replace $BUILD_ID in index.yaml
-        (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', $env:BUILD_ID | Set-Content ./helm/output/index.yaml
-
-        # Debugging the file content to ensure the replacement happened
+        # Replace $BUILD_ID in index.yaml
+        (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', "$env:BUILD_ID" | Set-Content ./helm/output/index.yaml
+        # Debugging file content
         Get-Content ./helm/output/index.yaml
-
-        # Update the Helm repo index
+        # Update Helm repo index
         helm repo index ./helm/output --url https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App
       shell: powershell
 
