@@ -23,15 +23,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Docker debug login  
-    - name: Debug Docker Login Environment Variables
-      run: |
-        echo "DOCKER_USERNAME=$env:DOCKER_USERNAME"
-        echo "DOCKER_PASSWORD is set"
-      shell: powershell
-
-
-    # Step 2: Docker login    #// We already login to dockerhub manually in our local machine. so skip this step
+     # Step 2: Docker login    #// We already login to dockerhub manually in our local machine. so skip this step
     - name: Docker Login
       run: |
         docker login -u $env:DOCKER_USERNAME -p $env:DOCKER_PASSWORD
