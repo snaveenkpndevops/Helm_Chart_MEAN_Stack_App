@@ -1,4 +1,4 @@
-name: Helm CI/CD Automation
+name: Helm CI/CD Automation for frontend automatically_trigger
 
 # There is disadvantage for this workflow, we can't update the chart version because it will consider no as default.
 

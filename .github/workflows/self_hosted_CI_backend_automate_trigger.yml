@@ -1,4 +1,4 @@
-name: Helm CI/CD Automation for backend manual_trigger
+name: Helm CI/CD Automation for backend automatically_trigger
 
 on:
   # push:
