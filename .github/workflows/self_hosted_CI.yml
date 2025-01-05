@@ -56,9 +56,22 @@ jobs:
         $chart_yaml = Get-Content "./helm/frontend-chart/Chart.yaml"
         $current_version = ($chart_yaml | Select-String -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
         $major, $minor, $patch = $current_version -split '\.'
-        $new_version = "$major.$($minor + 1).0"
+
+        # Increment patch version
+        $patch = [int]$patch + 1
+
+        # If patch reaches 10, reset patch to 0 and increment minor version
+        if ($patch -ge 10) {
+            $patch = 0
+            $minor = [int]$minor + 1
+        }
+
+        # Construct the new version
+        $new_version = "$major.$minor.$patch"
+
+        # Update the Chart.yaml file
         $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
-      shell: powershell
+
 
     # Step 7: Validate Helm Chart
     - name: Lint Helm Chart
