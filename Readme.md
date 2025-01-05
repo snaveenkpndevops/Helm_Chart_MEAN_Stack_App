@@ -660,8 +660,8 @@ helm list  →  Now you can check the release list using this command: You can a
 
 
 
-## Automate helm CI/CD using Github Action:
+## Automate helm CI/CD using Github Action in minikube:
 
-For the Helm CI/CD Automation project, please refer to the `Automate_helm_CICD_Readme.md` file.
+For the Helm CI/CD Automation project, please refer to the `Automate_helm_CICD_Minikube_Readme.md` file.
 
 
