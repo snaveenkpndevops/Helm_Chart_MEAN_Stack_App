@@ -3,6 +3,7 @@ name: Helm CI/CD Automation for frontend automatically_trigger
 # There is disadvantage for this workflow, we can't update the chart version because it will consider no as default.
 
 on:
+  # Un comment the below 3 lines for automatic workflow trigger when there is any update in frontend folder.
   # push:
   #   paths:
   #     - 'frontend/**'   # This will trigger the workflow for any updates in the frontend folder
