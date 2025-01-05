@@ -105,15 +105,30 @@ jobs:
       shell: powershell
 
 
-    # Step 10: Deploy to Staging
-    - name: Deploy to Staging
+    # Step 10: create namespace and upgrade Helm chart (Deploy to Staging)
+    - name: Deploy Frontend
       run: |
-        kubectl get namespace restaurant || kubectl create namespace restaurant
-        helm upgrade --install frontend ./helm/frontend-chart --namespace restaurant --set image.tag=${{ env.BUILD_ID }} --atomic
+        # Check if the namespace exists and create it if not
+        kubectl get namespace restaurant
+        if ($?) {
+          echo "Namespace exists"
+        } else {
+          kubectl create namespace restaurant
+        }
+        
+        # Upgrade or install the Helm chart for frontend
+        helm upgrade --install frontend ./helm/frontend-chart --namespace restaurant --set image.tag=12620189728 --atomic
+        
+        # Wait for the frontend deployment to become available
         kubectl wait --for=condition=available --timeout=600s deployment/frontend -n restaurant
+        
+        # Get the pods in the restaurant namespace
         kubectl get pods -n restaurant
+        
+        # Check the rollout status of the frontend deployment
         kubectl rollout status deployment frontend -n restaurant
       shell: powershell
+
 
     # Step 11: Commit and Push Changes
     - name: Commit and Push Changes
