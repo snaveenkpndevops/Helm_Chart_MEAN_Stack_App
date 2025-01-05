@@ -2,8 +2,8 @@ apiVersion: v2                      # v2 indicates helm version 3, v1 indicated 
 name: restaurant-backend-chart      # Name of this chart
 description: A Helm chart for MEAN stack Restaurant Backend Application
 type: application                   # Application chart is for deploying the app in Kubernetes. Library Chart is for reusable in other helm chart.
-version: 0.1.1
-appVersion: '12621315430'
+version: 0.1.2
+appVersion: '12621327034'
 maintainers:
   - name: Naveen                    # Information about the owner of the chart
     email: snaveenkpn@gmail.com     # Optional: you can include an email address for the maintainer
