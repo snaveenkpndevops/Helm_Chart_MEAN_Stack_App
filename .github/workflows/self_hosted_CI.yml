@@ -136,8 +136,17 @@ jobs:
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
         git add .
-        git diff --exit-code || (git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"; git push)
+        
+        # Check for changes using git diff and commit if changes exist
+        $diff = git diff --exit-code
+        if ($diff) {
+          git commit -m "Updated Helm Chart: appVersion=${{ env.BUILD_ID }}"
+          git push
+        } else {
+          Write-Host "No changes to commit"
+        }
       shell: powershell
+
 
     # # Step 12: Send Notifications
     # - name: Notify Slack
