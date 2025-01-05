@@ -54,7 +54,7 @@ jobs:
       if: ${{ github.event.inputs.update_chart_version == 'yes' }}
       run: |
         $chart_yaml = Get-Content "./helm/backend-chart/Chart.yaml"
-        $current_version = ($chart_yaml | Select-String -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
+        $current_version = ($chart_yaml | Select-String -Pattern "^version:" | ForEach-Object { ($_.Line -split ':')[1].Trim().Split(' ')[0] })
         $major, $minor, $patch = $current_version -split '\.'
 
         # Increment the patch version
