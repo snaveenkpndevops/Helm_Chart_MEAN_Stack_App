@@ -57,7 +57,7 @@ jobs:
         $current_version = ($chart_yaml | Select-String -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
         $major, $minor, $patch = $current_version -split '\.'
 
-        # Increment patch version
+        # Increment the patch version
         $patch = [int]$patch + 1
 
         # If patch reaches 10, reset patch to 0 and increment minor version
@@ -66,11 +66,18 @@ jobs:
             $minor = [int]$minor + 1
         }
 
+        # If minor reaches 10, reset minor to 0 and increment major version
+        if ($minor -ge 10) {
+            $minor = 0
+            $major = [int]$major + 1
+        }
+
         # Construct the new version
         $new_version = "$major.$minor.$patch"
 
         # Update the Chart.yaml file
         $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
+
 
 
     # Step 7: Validate Helm Chart
