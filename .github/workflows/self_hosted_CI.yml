@@ -95,7 +95,7 @@ jobs:
     # Step 9: Update Index.yaml
     - name: Update Helm Repo Index
       run: |
-        REPO_URL="https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App"
+        $REPO_URL = "https://snaveenkpn.github.io/Helm_Chart_MEAN_Stack_App"
         if (!(Test-Path -Path ./helm/output/index.yaml)) {
           echo "index.yaml not found. Creating a new index.yaml file."
           helm repo index ./helm/output --url $REPO_URL
@@ -103,6 +103,7 @@ jobs:
         (Get-Content ./helm/output/index.yaml) -replace '\$BUILD_ID', '${{ env.BUILD_ID }}' | Set-Content ./helm/output/index.yaml
         helm repo index ./helm/output --url $REPO_URL
       shell: powershell
+
 
     # Step 10: Deploy to Staging
     - name: Deploy to Staging
