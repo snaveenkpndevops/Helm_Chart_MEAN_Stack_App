@@ -1,12 +1,10 @@
-name: Helm CI/CD Automation
-
-# There is disadvantage for this workflow, we can't update the chart version because it will consider no as default.
+name: Helm CI/CD Automation for backend manual_trigger
 
 on:
   # push:
   #   paths:
-  #     - 'frontend/**'   # This will trigger the workflow for any updates in the frontend folder
-  workflow_dispatch:   # This line keeps the manual trigger option for other use cases
+  #     - 'backend/**'   # This will trigger the workflow for any updates in the backend folder
+  workflow_dispatch:   # This line makes the workflow run only when user's manual trigger (eliminates automatic trigger on push)    
     inputs:
       update_chart_version:
         description: 'Do you want to update the chart version? (yes/no)'
@@ -17,7 +15,7 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
   BUILD_ID: ${{ github.run_id }}
-  FRONTEND_IMAGE: "snaveenkpn/restaurant-frontend"
+  BACKEND_IMAGE: "snaveenkpn/restaurant-backend"
 
 jobs:
   build-and-deploy:
@@ -37,28 +35,28 @@ jobs:
     # Step 3: Build Docker image
     - name: Build Docker Image
       run: |
-        docker build -t ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }} -t ${{ env.FRONTEND_IMAGE }}:latest ./frontend
+        docker build -t ${{ env.BACKEND_IMAGE }}:${{ env.BUILD_ID }} -t ${{ env.BACKEND_IMAGE }}:latest ./backend
       shell: powershell  
 
     # Step 4: Push Docker image to DockerHub
     - name: Push Docker Image
       run: |
-        docker push ${{ env.FRONTEND_IMAGE }}:${{ env.BUILD_ID }}   # Staging Environment: You may deploy a specific tagged version, e.g., frontend:12345.
-        docker push ${{ env.FRONTEND_IMAGE }}:latest                 # Development or Testing Environment: Developers might prefer using frontend:latest for ease of testing the most recent image.
+        docker push ${{ env.BACKEND_IMAGE }}:${{ env.BUILD_ID }}   # Staging Environment: You may deploy a specific tagged version, e.g., backend:12345.
+        docker push ${{ env.BACKEND_IMAGE }}:latest                 # Development or Testing Environment: Developers might prefer using backend:latest for ease of testing the most recent image.
       shell: powershell  
 
     # Step 5: Update `values.yaml` and `Chart.yaml` with new image tag
     - name: Update Helm Chart Image Tag
       run: |
-        (Get-Content ./helm/frontend-chart/values.yaml) -replace 'tag:.*', "tag: '${{ env.BUILD_ID }}'" | Set-Content ./helm/frontend-chart/values.yaml
-        (Get-Content ./helm/frontend-chart/Chart.yaml) -replace 'appVersion:.*', "appVersion: '${{ env.BUILD_ID }}'" | Set-Content ./helm/frontend-chart/Chart.yaml
+        (Get-Content ./helm/backend-chart/values.yaml) -replace 'tag:.*', "tag: '${{ env.BUILD_ID }}'" | Set-Content ./helm/backend-chart/values.yaml
+        (Get-Content ./helm/backend-chart/Chart.yaml) -replace 'appVersion:.*', "appVersion: '${{ env.BUILD_ID }}'" | Set-Content ./helm/backend-chart/Chart.yaml
       shell: powershell
 
     # Step 6: Update Chart Version
     - name: Update Chart Version
       if: ${{ github.event.inputs.update_chart_version == 'yes' }}
       run: |
-        $chart_yaml = Get-Content "./helm/frontend-chart/Chart.yaml"
+        $chart_yaml = Get-Content "./helm/backend-chart/Chart.yaml"
         $current_version = ($chart_yaml | Select-String -Pattern "^version:" | ForEach-Object { $_.Line.Split(':')[1].Trim() })
         $major, $minor, $patch = $current_version -split '\.'
 
@@ -81,20 +79,20 @@ jobs:
         $new_version = "$major.$minor.$patch"
 
         # Update the Chart.yaml file
-        $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/frontend-chart/Chart.yaml"
+        $chart_yaml -replace "^version:.*", "version: $new_version" | Set-Content "./helm/backend-chart/Chart.yaml"
 
 
     # Step 7: Lint Helm Chart
     - name: Lint Helm Chart
       run: |
-        helm dep update ./helm/frontend-chart
-        helm lint ./helm/frontend-chart
+        helm dep update ./helm/backend-chart
+        helm lint ./helm/backend-chart
       shell: powershell
 
     # Step 8: Package Helm Chart
     - name: Package Helm Chart
       run: |
-        helm package ./helm/frontend-chart -d ./helm/output
+        helm package ./helm/backend-chart -d ./helm/output
       shell: powershell
 
     # Step 9: Update Index.yaml
@@ -111,7 +109,7 @@ jobs:
 
 
     # Step 10: create namespace and upgrade Helm chart (Deploy to Staging)
-    - name: Deploy Frontend
+    - name: Deploy backend
       run: |
         # Check if the namespace exists and create it if not
         kubectl get namespace restaurant
@@ -121,17 +119,17 @@ jobs:
           kubectl create namespace restaurant
         }
         
-        # Upgrade or install the Helm chart for frontend
-        helm upgrade --install frontend ./helm/frontend-chart --namespace restaurant --set image.tag=12620189728 --atomic
+        # Upgrade or install the Helm chart for backend
+        helm upgrade --install backend ./helm/backend-chart --namespace restaurant --set image.tag=12620189728 --atomic
         
-        # Wait for the frontend deployment to become available
-        kubectl wait --for=condition=available --timeout=600s deployment/frontend -n restaurant
+        # Wait for the backend deployment to become available
+        kubectl wait --for=condition=available --timeout=600s deployment/backend -n restaurant
         
         # Get the pods in the restaurant namespace
         kubectl get pods -n restaurant
         
-        # Check the rollout status of the frontend deployment
-        kubectl rollout status deployment frontend -n restaurant
+        # Check the rollout status of the backend deployment
+        kubectl rollout status deployment backend -n restaurant
       shell: powershell
 
 
@@ -142,7 +140,7 @@ jobs:
         git config user.email "${{ github.actor }}@users.noreply.github.com"
         git add .
         git status
-
+        
         # Check for changes and commit them
         $diff = git status --porcelain
         if ($diff) {
@@ -152,3 +150,16 @@ jobs:
           Write-Host "No changes to commit"
         }
       shell: powershell
+
+
+    # # Step 12: Send Notifications
+    # - name: Notify Slack
+    #   if: always()
+    #   uses: slackapi/slack-github-action@v1.23.0
+    #   with:
+    #     payload: |
+    #       {
+    #         "text": "Helm CI/CD workflow for ${{ github.repository }} has completed with status: ${{ job.status }}."
+    #       }
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
