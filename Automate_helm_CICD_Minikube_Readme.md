@@ -21,19 +21,22 @@ For this hands-on session, we will utilize a self-hosted runner in GitHub Action
 2. docker login, build, tag, push the image to dockerhub.
 3. update the docker image tag in values.yaml and update the docker image tag in app version of chart.yaml in the helm chart.
 4. If the update is minor or major change then update the chart version in chart.yaml in the helm chart. For small code changes, just update only the app version of chart.yaml in the helm chart.
-5. package the helm chart.
-6. update the chart details and version in index.yaml file.
+5. helm lint .  -->  This command will make sure that our chart is valid and, all the indentations are fine.
+6. package the helm chart.
+7. If the index.yaml is already exist then Update the application version in index.yaml if not then Create index.yaml and then Update the application version.
 
-[ Now in github the helm chart is updated ]
+[ Now in github actions temporary work directory the helm chart is updated ]
 
 
 ### Github Action CD Workflow Steps:
 
-1. Connect to our minikube cluster (or) eks cluster.
-2. Add the helm repository of our helm chart.
-3. update the helm repository.
-4. Install the helm chart for our application (frontend, backend, mongodb chart).
-5. If the chart is already installed, then just upgrade the helm chart.
+So here we are going to deploy our helm chart in minikube cluster. Make Sure to start the minikube cluster as prerequisite and also ensure kubectl, helm is installed in your local machine and docker desktop should be open.
+
+1. Connect to our minikube cluster.
+2. Check whether restaurant namespace is exist or not. If not create it.
+3. upgrade the helm chart in cluster, check whether the microservice is running or not. If not then rollback to previous version (This is achieved by `--atomic flag`)
+4. Commit and push to github repository.  [So now we verified that helm is working as excepted, so we will push the helm chart and other files from github actions temporary workspace to github repository.]
+5. Send email notification.
 
 
 ## Prerequisite:
